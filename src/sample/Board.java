@@ -3,13 +3,21 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+import static sample.Game.game;
+
 public class Board {
     public final static int cellWidth = 60;
     public final static int cellHeight = 60;
     public final static int numOfCnR = 9;
     public final static int baseOffset = 1;
-    private int[] active = new int[2];
+    public final static int remove = numOfCnR*5;
 
+    public void setActivesolving(int[] activesolving) {
+        this.activesolving = activesolving;
+    }
+
+    private int[] activesolving = {-1, -1};
+    private int[] active = {-1,-1};
     public int[][] getModifiedCellList() {
         return modifiedCellList;
     }
@@ -53,7 +61,7 @@ public class Board {
     }
     public void drawContent(GraphicsContext gc){
         int row = 0,col = 0;
-        for (int[] v: modifiedCellList)
+        for (int[] v: initBoard)
         {
             col = 0;
             for(int c: v){
@@ -82,19 +90,30 @@ public class Board {
             }
             row++;
         }
+        // draw actively solving
+        if(game.isSolving()){
+            if(activesolving[0]!=-1 || activesolving[1]!=-1){
+                gc.setFill(Color.GREEN);
+                gc.fillRect(activesolving[1]*cellWidth,  activesolving[0]*cellHeight, cellWidth, cellHeight);
+                gc.setFill(Color.WHITE);
+                gc.fillRect(activesolving[1]*cellWidth+baseOffset, activesolving[0]*cellHeight+baseOffset, cellWidth-(2*baseOffset), cellHeight-(2*baseOffset));
+            }
+        }
         // draw active
-        if(active[0]!=-1 || active[1]!=-1){
-            gc.setFill(Color.RED);
-            gc.fillRect(col*cellWidth, row*cellHeight, cellWidth, cellHeight);
-            gc.setFill(Color.WHITE);
-            gc.fillRect(col*cellWidth+baseOffset, row*cellHeight+baseOffset, cellWidth-(2*baseOffset), cellHeight-(2*baseOffset));
+        else{
+            if(active[0]!=-1 || active[1]!=-1){
+                gc.setFill(Color.RED);
+                gc.fillRect(active[1]*cellWidth,  active[0]*cellHeight, cellWidth, cellHeight);
+                gc.setFill(Color.WHITE);
+                gc.fillRect(active[1]*cellWidth+baseOffset, active[0]*cellHeight+baseOffset, cellWidth-(2*baseOffset), cellHeight-(2*baseOffset));
+            }
         }
         // draw filled
         row = 0;
         for (int[] ints : modifiedCellList) {
             col=0;
             for (int e : ints) {
-                if (e != 0 && Game.gameBoard.getInitBoard()[row][col]!=0) {
+                if (e != 0 && initBoard[row][col]==0) {
                     gc.setFill(Color.GREY);
                     gc.setFont(Font.font("Times New Roman", 32));
                     gc.fillText(String.valueOf(e), col*cellWidth+cellWidth/3.0, row*cellHeight+cellHeight/1.5);
@@ -102,6 +121,11 @@ public class Board {
                 col++;
             }
             row++;
+        }
+        try{
+            Thread.sleep(5);
+        }catch(InterruptedException e){
+
         }
     }
 
@@ -115,6 +139,10 @@ public class Board {
 
     public void setValueForActive(int i) {
         modifiedCellList[active[0]][active[1]]=i;
+        // check if its full
+        if(Algorythm.isFullB(modifiedCellList)){
+            game.result(game.checkForEnding());
+        }
     }
 
     public void acceptValue() {
@@ -128,17 +156,24 @@ public class Board {
         switch (dir){
             case "UP":
                 if(active[0]!=0)
-                    active[0]--;
+                    if(initBoard[--active[0]][active[1]]!=0)
+                        active[0]++;
                 break;
             case "DOWN":
                 if (active[0]!=numOfCnR-1)
-                    active[0]++;
+                    if(initBoard[++active[0]][active[1]]!=0)
+                        active[0]--;
+                break;
             case "LEFT":
                 if(active[1]!=0)
-                    active[1]--;
+                    if(initBoard[active[0]][--active[1]]!=0)
+                        active[1]++;
+                break;
             case "RIGHT":
                 if (active[1]!=numOfCnR-1)
-                    active[1]++;
+                    if(initBoard[active[0]][++active[1]]!=0)
+                    active[1]--;
+                break;
         }
     }
 }

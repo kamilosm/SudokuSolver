@@ -1,5 +1,9 @@
 package sample;
 
+import javafx.animation.AnimationTimer;
+
+import static sample.Game.game;
+
 public class Algorythm {
     private static int SNR = (int) Math.sqrt(Board.numOfCnR);
     public static int [][] test = {
@@ -12,8 +16,14 @@ public class Algorythm {
         fillDiagonal(sudoku);
         fillRemaining(0, SNR, sudoku);
         remove(sudoku);
-        //backtrackSolution(sudoku);
-        board.setModifiedCellList(sudoku);
+        board.setInitBoard(sudoku);
+        int[][] mod = new int[Board.numOfCnR][Board.numOfCnR];
+        for(int i=0;i<Board.numOfCnR;i++){
+            for(int j=0;j<Board.numOfCnR;j++){
+                mod[i][j]=sudoku[i][j];
+            }
+        }
+        board.setModifiedCellList(mod);
         return board;
     }
 
@@ -76,7 +86,7 @@ public class Algorythm {
         return false;
     }
 
-    private static boolean isSafe(int row, int col, int i, int[][] sudoku) {
+    public static boolean isSafe(int row, int col, int i, int[][] sudoku) {
         boolean b1 = isNotInRow(row, i, sudoku);
         boolean b2 = isNotInCol(col, i, sudoku);
         boolean b3 = isNotUsedInBox(row, col, i, sudoku);
@@ -99,7 +109,7 @@ public class Algorythm {
     }
     private static void remove(int [][] sudoku){
         int i, j;
-        for(int attemps=(Board.numOfCnR*6-2);attemps>=0;attemps--){
+        for(int attemps=Board.remove;attemps>=0;attemps--){
             do
             {
                 i = (int)(Math.random()*Board.numOfCnR);
@@ -117,7 +127,16 @@ public class Algorythm {
         }
         return new int[]{1};
     }
-    private static boolean backtrackSolution(int [][] sudoku){
+    public static boolean isFullB(int[][] sudoku){
+        for(int i=0;i<Board.numOfCnR;i++){
+            for(int j=0;j<Board.numOfCnR;j++){
+                if(sudoku[i][j]==0)
+                    return false;
+            }
+        }
+        return true;
+    }
+    public static boolean backtrackSolutionWithVisual(int [][] sudoku){
         int row = 0;
         int col = 0;
         int [] e = isFull(sudoku);
@@ -131,11 +150,14 @@ public class Algorythm {
         for (int val = 1; val <= Board.numOfCnR; val++) {
             if (isSafe(row, col , val, sudoku)) {
                 sudoku[row][col] = val;
-                if (backtrackSolution(sudoku)) {
+                game.gameBoard.setActivesolving(new int[]{row, col});
+                game.drawGameBoard();
+                if (backtrackSolutionWithVisual(sudoku)) {
                     return true;
                 }
                 else {
                     sudoku[row][col] = 0;
+                    game.drawGameBoard();
                 }
             }
         }

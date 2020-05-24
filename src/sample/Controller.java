@@ -6,7 +6,12 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+
+import java.time.Instant;
+
+import static sample.Game.game;
 
 public class Controller {
     @FXML
@@ -17,86 +22,97 @@ public class Controller {
     public Label timeLabel;
     public Button button_solve_for_me;
     public Button button_generate_again;
+    public BorderPane container;
+    public Label endLabel;
 
     @FXML
     public void initialize(){
         graphicBoard.setHeight(Board.cellHeight*Board.numOfCnR);
         graphicBoard.setWidth(Board.cellWidth*Board.numOfCnR);
-        graphicBoard.setOnKeyTyped(e->{
-            if(Game.gameBoard.getInitBoard()[Game.gameBoard.getActive()[0]][Game.gameBoard.getActive()[1]]==0){
+        game.setEndLabel(endLabel);
+        game.setTimerLabel(timeLabel);
+        container.setOnKeyReleased(e->{
+            if(game.isSolving())
+                return;
+            if(game.gameBoard.getInitBoard()[game.gameBoard.getActive()[0]][game.gameBoard.getActive()[1]]==0){
                 switch(e.getCode()){
                     case ENTER:
-                        Game.gameBoard.acceptValue();
+                        game.gameBoard.acceptValue();
                         break;
-                    case SOFTKEY_0:
-                        Game.gameBoard.setValueForActive(0);
+                    case DIGIT0:
+                        game.gameBoard.setValueForActive(0);
                         break;
-                    case SOFTKEY_1:
-                        Game.gameBoard.setValueForActive(1);
+                    case DIGIT1:
+                        game.gameBoard.setValueForActive(1);
                         break;
-                    case SOFTKEY_2:
-                        Game.gameBoard.setValueForActive(2);
+                    case DIGIT2:
+                        game.gameBoard.setValueForActive(2);
                         break;
-                    case SOFTKEY_3:
-                        Game.gameBoard.setValueForActive(3);
+                    case DIGIT3:
+                        game.gameBoard.setValueForActive(3);
                         break;
-                    case SOFTKEY_4:
-                        Game.gameBoard.setValueForActive(4);
+                    case DIGIT4:
+                        game.gameBoard.setValueForActive(4);
                         break;
-                    case SOFTKEY_5:
-                        Game.gameBoard.setValueForActive(5);
+                    case DIGIT5:
+                        game.gameBoard.setValueForActive(5);
                         break;
-                    case SOFTKEY_6:
-                        Game.gameBoard.setValueForActive(6);
+                    case DIGIT6:
+                        game.gameBoard.setValueForActive(6);
                         break;
-                    case SOFTKEY_7:
-                        Game.gameBoard.setValueForActive(7);
+                    case DIGIT7:
+                        game.gameBoard.setValueForActive(7);
                         break;
-                    case SOFTKEY_8:
-                        Game.gameBoard.setValueForActive(8);
+                    case DIGIT8:
+                        game.gameBoard.setValueForActive(8);
                         break;
-                    case SOFTKEY_9:
-                        Game.gameBoard.setValueForActive(9);
+                    case DIGIT9:
+                        game.gameBoard.setValueForActive(9);
                         break;
                 }
             }
             switch (e.getCode()){
                 case UP:
-                    Game.gameBoard.moveActive("UP");
+                    game.gameBoard.moveActive("UP");
                     break;
                 case DOWN:
-                    Game.gameBoard.moveActive("DOWN");
+                    game.gameBoard.moveActive("DOWN");
                     break;
                 case LEFT:
-                    Game.gameBoard.moveActive("LEFT");
+                    game.gameBoard.moveActive("LEFT");
                     break;
                 case RIGHT:
-                    Game.gameBoard.moveActive("RIGHT");
+                    game.gameBoard.moveActive("RIGHT");
                     break;
             }
-            Game.game.drawGameBoard();
+            game.drawGameBoard();
 
         });
     }
 
     public void guiButton(ActionEvent actionEvent) {
+        if(game.isSolving())
+            return;
         if(actionEvent.getSource().equals(button_solve_for_me)){
-            Game.gameBoard.setModifiedCellList(new int[Board.numOfCnR][Board.numOfCnR]);
+            game.solve();
 
         }
         else if(actionEvent.getSource().equals(button_generate_again)){
-            Game.gameBoard = Algorythm.generateBoard();
-            Game.game.drawGameBoard();
+            game.gameBoard = Algorythm.generateBoard();
+            game.setStartTime(Instant.now());
+            game.drawGameBoard();
         }
     }
 
     public void boardClick(MouseEvent mouseEvent) {
+        if(game.isSolving())
+            return;
         if((int)mouseEvent.getSceneY() < Board.numOfCnR*Board.cellHeight && (int)mouseEvent.getSceneX() < Board.numOfCnR*Board.cellWidth){
             int row = (int)mouseEvent.getSceneY()/Board.cellHeight;
             int col = (int)mouseEvent.getSceneX()/Board.cellWidth;
-            if(Game.gameBoard.getInitBoard()[row][col]==0){
-                Game.gameBoard.setActive(new int[]{row, col});
-                Game.game.drawGameBoard();
+            if(game.gameBoard.getInitBoard()[row][col]==0){
+                game.gameBoard.setActive(new int[]{row, col});
+                game.drawGameBoard();
             }
         }
     }

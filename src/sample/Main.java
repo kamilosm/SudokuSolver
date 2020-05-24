@@ -14,6 +14,7 @@ public class Main extends Application {
         primaryStage.setTitle("Simple Sudoku Solver");
         primaryStage.setScene(new Scene(root, Board.cellWidth*Board.numOfCnR, 100+Board.cellHeight*Board.numOfCnR));
         primaryStage.show();
+        root.requestFocus();
         Game g = new Game();
         g.start(primaryStage);
 

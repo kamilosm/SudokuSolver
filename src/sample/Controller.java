@@ -34,7 +34,9 @@ public class Controller {
         container.setOnKeyReleased(e->{
             if(game.isSolving())
                 return;
-            if(game.gameBoard.getInitBoard()[game.gameBoard.getActive()[0]][game.gameBoard.getActive()[1]]==0){
+            if(game.gameBoard.getActive()[0] == -1)
+                return;
+            if(game.gameBoard.getInitBoard()[game.gameBoard.getActive()[0]][game.gameBoard.getActive()[1]]==0 ){
                 switch(e.getCode()){
                     case ENTER:
                         game.gameBoard.acceptValue();
@@ -94,12 +96,13 @@ public class Controller {
         if(game.isSolving())
             return;
         if(actionEvent.getSource().equals(button_solve_for_me)){
-            game.solve();
+            new Thread(()->game.solve()).start();
 
         }
         else if(actionEvent.getSource().equals(button_generate_again)){
             game.gameBoard = Algorythm.generateBoard();
-            game.setStartTime(Instant.now());
+            game.setIsSolved(false);
+            game.initTimer();
             game.drawGameBoard();
         }
     }

@@ -11,6 +11,7 @@ public class Board {
     public final static int numOfCnR = 9;
     public final static int baseOffset = 1;
     public final static int remove = numOfCnR*5;
+    public final static int delay = 70;
 
     public void setActivesolving(int[] activesolving) {
         this.activesolving = activesolving;

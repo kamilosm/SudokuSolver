@@ -1,6 +1,8 @@
 package sample;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
+import javafx.scene.canvas.GraphicsContext;
 
 import static sample.Game.game;
 
@@ -136,7 +138,7 @@ public class Algorythm {
         }
         return true;
     }
-    public static boolean backtrackSolutionWithVisual(int [][] sudoku){
+    public static boolean backtrackSolutionWithVisual(int [][] sudoku, GraphicsContext gc){
         int row = 0;
         int col = 0;
         int [] e = isFull(sudoku);
@@ -151,13 +153,22 @@ public class Algorythm {
             if (isSafe(row, col , val, sudoku)) {
                 sudoku[row][col] = val;
                 game.gameBoard.setActivesolving(new int[]{row, col});
-                game.drawGameBoard();
-                if (backtrackSolutionWithVisual(sudoku)) {
+                Platform.runLater(() -> {
+                    game.gameBoard.drawBoard(gc);
+                });
+                try {
+                    Thread.sleep(Board.delay);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                if (backtrackSolutionWithVisual(sudoku,gc)) {
                     return true;
                 }
                 else {
                     sudoku[row][col] = 0;
-                    game.drawGameBoard();
+                    Platform.runLater(() -> {
+                        game.gameBoard.drawBoard(gc);
+                    });
                 }
             }
         }
